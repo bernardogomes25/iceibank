@@ -42,6 +42,15 @@
     <p id="transfResultado"></p>
   </div>
 
+  <div class="card">
+    <h2>Historico da conta</h2>
+    <label for="historicoId">Numero da conta</label>
+    <input id="historicoId" type="number">
+    <button id="btnHistorico">Ver historico</button>
+    <p id="historicoResultado"></p>
+    <ul id="historico"></ul>
+  </div>
+
   <script src="app.js"></script>
   <script>
     if (!estaLogado()) {
@@ -95,6 +104,23 @@
         mostrar("transfResultado", resultado.mensagem, "sucesso");
       } catch (erro) {
         mostrar("transfResultado", erro.message, "erro");
+      }
+    });
+
+    document.getElementById("btnHistorico").addEventListener("click", async () => {
+      const id = document.getElementById("historicoId").value;
+      const lista = document.getElementById("historico");
+      lista.innerHTML = "";
+      try {
+        const eventos = await chamarApi(`/contas/${id}/historico`);
+        mostrar("historicoResultado", `${eventos.length} evento(s) encontrado(s).`, "sucesso");
+        for (const evento of eventos) {
+          const item = document.createElement("li");
+          item.textContent = `[Lamport ${evento.timestampLamport}] ${evento.tipo}`;
+          lista.appendChild(item);
+        }
+      } catch (erro) {
+        mostrar("historicoResultado", erro.message, "erro");
       }
     });
   </script>

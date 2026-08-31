@@ -2,7 +2,11 @@
 
 ## Funcionalidade adicional (seção 2.1)
 
-_Preencher na Parte extra._
+Implementei um endpoint de histórico de transações por conta: `GET /contas/{id}/historico`. Ele lê o log de eventos da própria agência (o mesmo arquivo `.jsonl` usado pela linha do tempo) e devolve só os eventos que têm relação com aquela conta - criação, depósito, saque ou transferências em que ela aparece como origem ou destino.
+
+Escolhi essa funcionalidade porque ela reaproveita algo que já existia (o registro de eventos com relógio de Lamport) e mostra de um jeito prático o que o resto do sprint construiu - a pessoa usando o sistema consegue ver a "história" de uma conta sem precisar abrir o arquivo de log manualmente. Também dava pra testar o mesmo endpoint direto no frontend, já que a tela de painel já tinha as outras operações.
+
+Evidência de teste: `evidencias/sprint1/funcionalidade-adicional.png`.
 
 ## Parte B - Relógio de Lamport (seção 6.4)
 

@@ -70,3 +70,19 @@ def sacar(id_conta: int, body: ValorBody, request: Request):
     registro.registrar("SAQUE", ts, {"id": id_conta, "valor": body.valor, "novoSaldo": conta["saldo"]})
 
     return conta
+
+
+@router.get("/contas/{id_conta}/historico")
+def historico(id_conta: int, request: Request):
+    contas = request.app.state.contas
+    registro = request.app.state.registro
+
+    if id_conta not in contas:
+        raise HTTPException(status_code=404, detail="Conta nao encontrada nesta agencia.")
+
+    campos_de_conta = ("id", "idConta", "idOrigem", "idDestino")
+    return [
+        evento
+        for evento in registro.listar()
+        if any(evento["detalhes"].get(campo) == id_conta for campo in campos_de_conta)
+    ]

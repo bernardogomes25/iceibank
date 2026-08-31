@@ -23,3 +23,14 @@ class RegistroEventos:
             arquivo.write(json.dumps(evento, ensure_ascii=False) + "\n")
         print(f"[Lamport {timestamp_lamport}] {tipo} {detalhes}")
         return evento
+
+    def listar(self) -> list:
+        if not os.path.exists(self.caminho_arquivo):
+            return []
+        eventos = []
+        with open(self.caminho_arquivo, "r", encoding="utf-8") as arquivo:
+            for linha in arquivo:
+                linha = linha.strip()
+                if linha:
+                    eventos.append(json.loads(linha))
+        return eventos
