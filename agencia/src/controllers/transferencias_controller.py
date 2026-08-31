@@ -1,10 +1,11 @@
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 import config
+from auth import criar_token, exigir_token
 from schemas import CreditarRemotoBody, TransferenciaBody
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(exigir_token)])
 
 
 @router.post("/transferencias")
@@ -56,6 +57,7 @@ async def transferir(body: TransferenciaBody, request: Request):
                     "timestampLamport": ts_envio,
                     "origemAgencia": id_agencia,
                 },
+                headers={"Authorization": f"Bearer {criar_token(config.USUARIO_DEMO)}"},
                 timeout=5,
             )
             resposta.raise_for_status()

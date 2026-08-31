@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import config
 from services.lamport_clock import RelogioLamport
 from services.event_log import RegistroEventos
-from controllers import contas_controller, transferencias_controller
+from controllers import auth_controller, contas_controller, transferencias_controller
 
 id_agencia = int(os.environ.get("AGENCIA_ID", "0"))
 agencia_config = next((a for a in config.AGENCIAS if a["id"] == id_agencia), None)
@@ -20,6 +20,7 @@ app.state.relogio = RelogioLamport()
 app.state.registro = RegistroEventos(f"agencia-{id_agencia}")
 app.state.contas = {}
 
+app.include_router(auth_controller.router)
 app.include_router(contas_controller.router)
 app.include_router(transferencias_controller.router)
 

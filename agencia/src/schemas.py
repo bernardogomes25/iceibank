@@ -21,3 +21,8 @@ class CreditarRemotoBody(BaseModel):
     valor: float
     timestampLamport: int
     origemAgencia: int
+
+
+class LoginBody(BaseModel):
+    usuario: str
+    senha: str

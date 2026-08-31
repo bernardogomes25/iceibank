@@ -16,3 +16,11 @@ def agencia_responsavel(id_conta: int) -> int:
 
 def url_da_agencia(id_agencia: int) -> str:
     return next(a["url"] for a in AGENCIAS if a["id"] == id_agencia)
+
+
+JWT_SECRET = "iceibank-sprint1-segredo-de-desenvolvimento"
+JWT_ALGORITMO = "HS256"
+JWT_EXPIRACAO_MINUTOS = 15
+
+USUARIO_DEMO = "aluno"
+SENHA_DEMO = "1234"

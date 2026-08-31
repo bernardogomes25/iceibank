@@ -29,10 +29,15 @@ As portas usadas estão em `src/config.py` (4036, 4037, 4038 - já com o OFFSET 
 
 ## Testando os endpoints
 
-```powershell
-Invoke-RestMethod -Uri "http://localhost:4036/contas" -Method Post -ContentType "application/json" -Body '{"id":0,"nomeAluno":"Ana","saldoInicial":100}'
+Todas as rotas de conta e transferência exigem login antes:
 
-Invoke-RestMethod -Uri "http://localhost:4036/contas/0" -Method Get
+```powershell
+$login = Invoke-RestMethod -Uri "http://localhost:4036/auth/login" -Method Post -ContentType "application/json" -Body '{"usuario":"aluno","senha":"1234"}'
+$headers = @{ Authorization = "Bearer $($login.token)" }
+
+Invoke-RestMethod -Uri "http://localhost:4036/contas" -Method Post -ContentType "application/json" -Headers $headers -Body '{"id":0,"nomeAluno":"Ana","saldoInicial":100}'
+
+Invoke-RestMethod -Uri "http://localhost:4036/contas/0" -Method Get -Headers $headers
 ```
 
 ## Linha do tempo unificada

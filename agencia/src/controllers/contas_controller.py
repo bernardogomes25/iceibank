@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 import config
+from auth import exigir_token
 from schemas import CriarContaBody, ValorBody
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(exigir_token)])
 
 
 @router.post("/contas", status_code=201)
