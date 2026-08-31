@@ -10,9 +10,12 @@ function estaLogado() {
   return Boolean(pegarToken());
 }
 
-function sair() {
+function sair(mensagem) {
   localStorage.removeItem("token");
   localStorage.removeItem("agenciaUrl");
+  if (mensagem) {
+    sessionStorage.setItem("mensagemLogin", mensagem);
+  }
   window.location.href = "index.html";
 }
 
@@ -27,8 +30,8 @@ async function chamarApi(caminho, opcoes = {}) {
   });
 
   if (resposta.status === 401) {
-    sair();
-    throw new Error("Sessao expirada. Faca login novamente.");
+    sair("Sessao expirada. Faca login novamente.");
+    throw new Error("Sessao expirada.");
   }
 
   const dados = await resposta.json();

@@ -28,6 +28,12 @@
 
   <script src="app.js"></script>
   <script>
+    const mensagemAnterior = sessionStorage.getItem("mensagemLogin");
+    if (mensagemAnterior) {
+      document.getElementById("mensagem").textContent = mensagemAnterior;
+      sessionStorage.removeItem("mensagemLogin");
+    }
+
     document.getElementById("btnLogin").addEventListener("click", async () => {
       const agenciaUrl = document.getElementById("agencia").value;
       const usuario = document.getElementById("usuario").value;
