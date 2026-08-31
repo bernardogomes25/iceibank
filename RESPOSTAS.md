@@ -62,4 +62,14 @@ Qualquer pessoa que tivesse a chave conseguiria gerar tokens válidos pra qualqu
 
 ## Parte G - Frontend (seção 12.3)
 
-_Preencher após implementar a Parte G._
+**1. Como o frontend lembra de reenviar o token em cada requisição?**
+
+Depois do login, o token que a API devolve é salvo no `localStorage` do navegador. Toda chamada às rotas protegidas passa por uma função central (`chamarApi`, em `app.js`) que sempre inclui o header `Authorization: Bearer <token>` automaticamente, lendo o valor salvo. Assim, as telas não precisam se preocupar em anexar o token manualmente em cada requisição.
+
+**2. O que acontece se o token expirar no meio do uso?**
+
+A API responde com 401, e a função `chamarApi` detecta isso: ela apaga o token guardado, salva uma mensagem temporária e redireciona para a tela de login, onde a mensagem "Sessao expirada. Faca login novamente." aparece pra pessoa usando o sistema. Não é só um erro genérico no console - dá pra ver testando: derrubei um token válido, forcei ele a expirar e tentei consultar um saldo, e a tela voltou pro login já mostrando o aviso.
+
+**3. Onde fica o M, o V e o C no frontend?**
+
+Como o frontend é HTML/CSS/JS puro, essa separação não é tão formal quanto seria com um framework, mas dá pra enxergar: o "M" (Model) é meio que representado pelos dados que vêm da API (contas, saldos, mensagens de resposta) e pelo estado salvo no `localStorage` (token, agência atual); a "V" (View) é o HTML de cada página (`index.html`, `dashboard.html`) junto com o `style.css`; o "C" (Controller) é o `app.js` e os scripts dentro de cada página, que ficam entre a View e a API - pegam o que o usuário digitou, chamam a API, e atualizam a tela com o resultado. Na prática, View e Controller ficam bem próximos (os `<script>` estão dentro do próprio HTML), então essa separação é mais uma organização lógica do que uma separação rígida em arquivos.
