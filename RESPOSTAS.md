@@ -44,7 +44,21 @@ Não. No teste que fiz, três eventos concorrentes (sem nenhuma relação entre 
 
 ## Parte F - Autenticação JWT (seção 11.3)
 
-_Preencher após implementar a Parte F._
+**Sobre o formato de credenciais escolhido:** como as contas do banco não têm dono nem senha (são só `id + nome + saldo`), criei um único usuário de demonstração (`aluno` / `1234`, definido em `config.py`) que representa "alguém logado no sistema", sem estar amarrado a uma conta específica. É uma simplificação proposital para este sprint, já que ainda não existe uma tabela de usuários.
+
+**Sobre a chamada entre agências:** decidi que a chamada `creditar-remoto` também precisa de um token, igual às chamadas vindas do frontend. A agência que inicia a transferência gera um token pra si mesma (usando a mesma chave secreta) antes de chamar a agência de destino. Isso evita ter uma rota "sem porteira" no meio do sistema - toda rota que mexe em conta passa pelo mesmo bloqueio, sem precisar de uma exceção especial só pra chamadas internas.
+
+**1. Diferença entre autenticação e autorização. Minha implementação cobre as duas?**
+
+Autenticação é confirmar quem está fazendo a requisição (a pessoa realmente é quem diz ser). Autorização é decidir o que essa pessoa pode fazer depois de identificada. Minha implementação só cobre autenticação: o JWT garante que quem está chamando a API tem um login válido, mas não existe nenhuma checagem de "essa conta pertence a esse usuário". Na prática, hoje, um usuário autenticado consegue sacar ou consultar qualquer conta de qualquer agência, mesmo que não seja "dele" - já que as contas nem têm um dono formal associado ao login. Isso seria o próximo passo natural (amarrar cada conta a um usuário e checar isso em cada operação).
+
+**2. Por que o servidor não precisa consultar um banco pra validar a assinatura do JWT?**
+
+Porque a assinatura do token já garante matematicamente que ele foi gerado por quem tem a chave secreta e não foi alterado depois. Bastando reprocessar essa assinatura com a mesma chave, o servidor confirma a validade sem precisar guardar nada sobre aquela sessão. Isso é uma vantagem de escalabilidade grande comparado a guardar sessões em memória: com sessão em memória, cada requisição de um usuário precisaria cair sempre no mesmo servidor (ou todos os servidores teriam que compartilhar essa memória); com JWT, qualquer instância da agência consegue validar o token sozinha, sem depender de estado compartilhado.
+
+**3. O que aconteceria se a chave secreta vazasse?**
+
+Qualquer pessoa que tivesse a chave conseguiria gerar tokens válidos pra qualquer usuário, sem precisar saber a senha de ninguém - ou seja, conseguiria se autenticar como se fosse um usuário legítimo e usar a API normalmente. Seria basicamente perder o controle de quem pode entrar no sistema, e a única forma de resolver seria trocar a chave (o que invalida todos os tokens já emitidos, inclusive os de usuários legítimos).
 
 ## Parte G - Frontend (seção 12.3)
 
