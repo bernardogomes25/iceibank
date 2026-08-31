@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>ICEIBank - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>ICEIBank</h1>
+
+  <div class="card">
+    <label for="agencia">Agencia (porta de entrada)</label>
+    <select id="agencia">
+      <option value="http://localhost:4036">Agencia 0 - 4036</option>
+      <option value="http://localhost:4037">Agencia 1 - 4037</option>
+      <option value="http://localhost:4038">Agencia 2 - 4038</option>
+    </select>
+
+    <label for="usuario">Usuario</label>
+    <input id="usuario" value="aluno">
+
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" value="1234">
+
+    <button id="btnLogin">Entrar</button>
+    <p id="mensagem" class="erro"></p>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const agenciaUrl = document.getElementById("agencia").value;
+      const usuario = document.getElementById("usuario").value;
+      const senha = document.getElementById("senha").value;
+      const mensagem = document.getElementById("mensagem");
+      mensagem.textContent = "";
+
+      try {
+        const resposta = await fetch(agenciaUrl + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ usuario, senha }),
+        });
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          throw new Error(dados.detail || "Nao foi possivel entrar.");
+        }
+
+        localStorage.setItem("agenciaUrl", agenciaUrl);
+        localStorage.setItem("token", dados.token);
+        window.location.href = "dashboard.html";
+      } catch (erro) {
+        mensagem.textContent = erro.message;
+      }
+    });
+  </script>
+</body>
+</html>

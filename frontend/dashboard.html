@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>ICEIBank - Painel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topo">
+    <h1>ICEIBank</h1>
+    <button id="btnSair">Sair</button>
+  </div>
+
+  <div class="card">
+    <h2>Consultar saldo</h2>
+    <label for="saldoId">Numero da conta</label>
+    <input id="saldoId" type="number">
+    <button id="btnSaldo">Consultar</button>
+    <p id="saldoResultado"></p>
+  </div>
+
+  <div class="card">
+    <h2>Deposito / Saque</h2>
+    <label for="movId">Numero da conta</label>
+    <input id="movId" type="number">
+    <label for="movValor">Valor</label>
+    <input id="movValor" type="number" step="0.01">
+    <button id="btnDepositar">Depositar</button>
+    <button id="btnSacar">Sacar</button>
+    <p id="movResultado"></p>
+  </div>
+
+  <div class="card">
+    <h2>Transferencia</h2>
+    <label for="transfOrigem">Conta de origem</label>
+    <input id="transfOrigem" type="number">
+    <label for="transfDestino">Conta de destino</label>
+    <input id="transfDestino" type="number">
+    <label for="transfValor">Valor</label>
+    <input id="transfValor" type="number" step="0.01">
+    <button id="btnTransferir">Transferir</button>
+    <p id="transfResultado"></p>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if (!estaLogado()) {
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("btnSair").addEventListener("click", sair);
+
+    function mostrar(elementoId, texto, classe) {
+      const el = document.getElementById(elementoId);
+      el.textContent = texto;
+      el.className = classe;
+    }
+
+    document.getElementById("btnSaldo").addEventListener("click", async () => {
+      const id = document.getElementById("saldoId").value;
+      try {
+        const conta = await chamarApi(`/contas/${id}`);
+        mostrar("saldoResultado", `${conta.nomeAluno} - saldo: R$ ${conta.saldo}`, "sucesso");
+      } catch (erro) {
+        mostrar("saldoResultado", erro.message, "erro");
+      }
+    });
+
+    async function movimentar(rota) {
+      const id = document.getElementById("movId").value;
+      const valor = Number(document.getElementById("movValor").value);
+      try {
+        const conta = await chamarApi(`/contas/${id}/${rota}`, {
+          method: "POST",
+          body: JSON.stringify({ valor }),
+        });
+        mostrar("movResultado", `Novo saldo: R$ ${conta.saldo}`, "sucesso");
+      } catch (erro) {
+        mostrar("movResultado", erro.message, "erro");
+      }
+    }
+
+    document.getElementById("btnDepositar").addEventListener("click", () => movimentar("depositar"));
+    document.getElementById("btnSacar").addEventListener("click", () => movimentar("sacar"));
+
+    document.getElementById("btnTransferir").addEventListener("click", async () => {
+      const idOrigem = Number(document.getElementById("transfOrigem").value);
+      const idDestino = Number(document.getElementById("transfDestino").value);
+      const valor = Number(document.getElementById("transfValor").value);
+      try {
+        const resultado = await chamarApi("/transferencias", {
+          method: "POST",
+          body: JSON.stringify({ idOrigem, idDestino, valor }),
+        });
+        mostrar("transfResultado", resultado.mensagem, "sucesso");
+      } catch (erro) {
+        mostrar("transfResultado", erro.message, "erro");
+      }
+    });
+  </script>
+</body>
+</html>
