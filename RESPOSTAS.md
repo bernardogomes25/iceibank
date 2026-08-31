@@ -30,7 +30,17 @@ Uma opção é usar duas fases (2PC): antes de aplicar qualquer débito, a agên
 
 ## Parte E - Linha do tempo (seção 10.3)
 
-_Preencher após implementar a Parte E._
+**Observação do passo 3 (evento concorrente):** ao criar uma conta em cada uma das 3 agências quase ao mesmo tempo, as três operações de `CRIAR_CONTA` ficaram todas com `timestampLamport = 1`, cada uma na sua própria agência. Faz sentido: são operações totalmente independentes, nenhuma das três sabia da existência da outra, então não existe relação de causa e efeito entre elas - são eventos genuinamente concorrentes, e por isso o relógio de Lamport não tinha motivo nenhum pra diferenciar os timestamps.
+
+Comparando com `horaParede`, os três eventos aconteceram em milissegundos de diferença (uma ordem real de fato existiu no relógio da máquina), mas essa ordem não aparece no timestamp de Lamport - os três ficaram empatados em 1. Isso reforça que o Lamport não captura uma ordem "real" no tempo, só a ordem causal quando ela existe.
+
+**1. O que significa ver dois timestamps diferentes sem saber se um influenciou o outro?**
+
+Significa que não dá pra confiar cegamente no timestamp de Lamport para concluir causalidade. Se `timestamp(A) < timestamp(B)`, não necessariamente A causou B ou aconteceu antes dele na prática - pode ser só coincidência dos contadores. A única coisa garantida é a implicação em um sentido: se A realmente causou B, então o timestamp de A é menor. A volta não é garantida.
+
+**2. O relógio de Lamport sozinho seria suficiente para distinguir concorrência de causalidade?**
+
+Não. No teste que fiz, três eventos concorrentes (sem nenhuma relação entre si) ficaram com o mesmo timestamp, o que ajudou a identificar a concorrência nesse caso - mas isso foi mais coincidência da ordem de chegada do que uma garantia do algoritmo. Em outros casos, dois eventos concorrentes podem acabar com timestamps diferentes só por causa da ordem em que os contadores foram incrementados, e aí não tem como saber, só olhando o número, se são realmente concorrentes ou se um influenciou o outro. É exatamente essa limitação que motiva o relógio vetorial: ele guarda um contador por processo (não só um valor global), permitindo comparar dois timestamps e saber com certeza se um aconteceu antes do outro ou se são concorrentes.
 
 ## Parte F - Autenticação JWT (seção 11.3)
 
